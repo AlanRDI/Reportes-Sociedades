@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Renta Comercial Quilin</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0f1a;--s1:#111827;--s2:#1a2235;--bd:#1f2d45;
+  --blue:#3b82f6;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --txt:#e2e8f0;--muted:#64748b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh}
+header{background:linear-gradient(135deg,#0b0f1a 0%,#0f172a 60%,#0b1628 100%);border-bottom:1px solid var(--bd);padding:24px 36px 20px;display:flex;align-items:flex-end;justify-content:space-between;position:sticky;top:0;z-index:100;}
+header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 120% at 15% 50%,rgba(59,130,246,.07) 0%,transparent 70%);pointer-events:none}
+.brand{position:relative}
+.brand-eyebrow{font-size:10px;font-weight:600;letter-spacing:.15em;color:var(--blue);text-transform:uppercase;margin-bottom:4px}
+.brand-title{font-family:'DM Serif Display',serif;font-size:25px;letter-spacing:-.02em;line-height:1;color:#fff}
+.brand-title em{font-style:italic;color:var(--blue)}
+.header-meta{text-align:right;font-size:11.5px;color:var(--muted);line-height:1.7}
+.header-meta strong{color:var(--txt);font-weight:500}
+.header-pills{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:10.5px;font-weight:600}
+.pill-r{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.25)}
+.pill-p{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
+.pill-dot{width:6px;height:6px;border-radius:50%}
+.nav-tabs{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 36px;display:flex;gap:0;overflow-x:auto}
+.tab-btn{background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:13px 18px;cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap}
+.tab-btn:hover{color:var(--txt)}.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+main{padding:24px 36px 60px;max-width:1380px;margin:0 auto}
+.section{display:none}.section.active{display:block}
+.kpi-grid{display:grid;gap:14px;margin-bottom:22px}
+.k4{grid-template-columns:repeat(4,1fr)}.k3{grid-template-columns:repeat(3,1fr)}
+.kpi-card{background:var(--s1);border:1px solid var(--bd);border-radius:11px;padding:18px 20px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--blue))}
+.kpi-label{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.kpi-val{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;line-height:1;margin-bottom:5px}
+.kpi-unit{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted)}
+.kpi-sub{font-size:11px;color:var(--muted)}
+.kpi-delta{font-size:11.5px;font-weight:500;display:flex;align-items:center;gap:4px;margin-top:3px}
+.kpi-delta.up{color:var(--green)}.kpi-delta.dn{color:var(--red)}
+.cg{display:grid;gap:18px;margin-bottom:18px}
+.g2{grid-template-columns:1fr 1fr}.g31{grid-template-columns:2fr 1fr}
+.cc{background:var(--s1);border:1px solid var(--bd);border-radius:11px;padding:20px 22px}
+.ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px}
+.ct{font-family:'DM Serif Display',serif;font-size:16px;color:#fff;margin-bottom:2px}
+.cs{font-size:11.5px;color:var(--muted)}
+.leg{display:flex;gap:14px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.ll{width:16px;height:2px;border-radius:2px;flex-shrink:0}
+.ld{width:16px;height:0;border-top:2px dashed;flex-shrink:0;opacity:.8}
+.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.frow{display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.flabel{font-size:11.5px;color:var(--muted);font-weight:500}
+.fbtn{background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 12px;cursor:pointer;transition:all .15s}
+.fbtn:hover{border-color:var(--blue);color:var(--txt)}.fbtn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.tw{background:var(--s1);border:1px solid var(--bd);border-radius:11px;overflow:hidden;margin-bottom:20px}
+.thb{padding:14px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.tt{font-family:'DM Serif Display',serif;font-size:15px;color:#fff}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.br{background:rgba(16,185,129,.15);color:#34d399}.bp{background:rgba(59,130,246,.15);color:#60a5fa}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:var(--s2)}
+th{padding:9px 13px;text-align:right;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--bd);white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:8px 13px;text-align:right;border-bottom:1px solid rgba(31,45,69,.5);color:var(--txt)}
+td:first-child{text-align:left;color:var(--muted)}
+tr:last-child td{border-bottom:none}
+.rs td{font-weight:600;color:#fff!important;background:rgba(59,130,246,.07);border-top:1px solid var(--bd)}
+.vp{color:var(--green)!important}.vn{color:var(--red)!important}.vh{color:var(--blue)!important;font-weight:600}
+@media(max-width:880px){main{padding:14px 14px 60px}header{padding:18px 14px}.nav-tabs{padding:0 14px}.k4,.k3{grid-template-columns:1fr 1fr}.g2,.g31{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-eyebrow">Proyecto · Renta Comercial</div>
+    <div class="brand-title">Rentas <em>Quilin</em></div>
+  </div>
+  <div class="header-meta">
+    <div>Fuente: hoja <strong>Flujo Mensual</strong></div>
+    <div class="header-pills">
+      <span class="pill pill-r"><span class="pill-dot" style="background:#10b981"></span>Real hasta Dic 2025</span>
+      <span class="pill pill-p"><span class="pill-dot" style="background:#3b82f6"></span>Proyectado Ene 2026 →</span>
+    </div>
+  </div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active"  data-tab="resumen">Resumen</button>
+  <button class="tab-btn" data-tab="operacional">Flujo Operacional</button>
+  <button class="tab-btn" data-tab="inversion">Inversión</button>
+  <button class="tab-btn" data-tab="financiamiento">Financiamiento</button>
+  <button class="tab-btn" data-tab="timeline">Línea de Tiempo</button>
+  <button class="tab-btn" data-tab="detalle">Detalle Mensual</button>
+</nav>
+
+<main>
+
+<!-- RESUMEN -->
+<div id="tab-resumen" class="section active">
+  <div class="kpi-grid k4" style="margin-top:2px">
+    <div class="kpi-card" style="--kc:#10b981">
+      <div class="kpi-label">Flujo Operacional 2025 Real</div>
+      <div class="kpi-val">44.579 <span class="kpi-unit">UF</span></div>
+      <div class="kpi-sub">Ene–Dic 2025 · datos reales</div>
+    </div>
+    <div class="kpi-card" style="--kc:#3b82f6">
+      <div class="kpi-label">Flujo Operacional 2026 Proy.</div>
+      <div class="kpi-val">64.221 <span class="kpi-unit">UF</span></div>
+      <div class="kpi-delta up">↑ +44% vs 2025 real</div>
+    </div>
+    <div class="kpi-card" style="--kc:#f59e0b">
+      <div class="kpi-label">Ingresos Arriendos 2025 Real</div>
+      <div class="kpi-val">82.418 <span class="kpi-unit">UF</span></div>
+      <div class="kpi-sub">Arriendos + GGCC todo 2025</div>
+    </div>
+    <div class="kpi-card" style="--kc:#8b5cf6">
+      <div class="kpi-label">Flujo Acumulado Dic 2025</div>
+      <div class="kpi-val">500 <span class="kpi-unit">UF</span></div>
+      <div class="kpi-sub">Base para proyecciones 2026</div>
+    </div>
+  </div>
+  <div class="cg g31">
+    <div class="cc">
+      <div class="ch">
+        <div><div class="ct">Flujo Operacional Mensual</div><div class="cs">Real 2025 + Proyectado 2026 · UF</div></div>
+        <div class="leg">
+          <div class="li"><div class="ll" style="background:var(--green)"></div>Real 2025</div>
+          <div class="li"><div class="ld" style="border-color:var(--blue)"></div>Proy. 2026</div>
+        </div>
+      </div>
+      <canvas id="c-op-r" height="220"></canvas>
+    </div>
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Flujo Acumulado</div><div class="cs">Real 2025 · Proy. 2026</div></div></div>
+      <canvas id="c-acum-r" height="220"></canvas>
+    </div>
+  </div>
+  <div class="cg g2">
+    <div class="cc">
+      <div class="ch">
+        <div><div class="ct">Composición Ingresos</div><div class="cs">Arriendos + GGCC · 2025 real y 2026 proj.</div></div>
+        <div class="leg">
+          <div class="li"><div class="ldot" style="background:rgba(59,130,246,.8)"></div>Arriendos</div>
+          <div class="li"><div class="ldot" style="background:rgba(16,185,129,.8)"></div>GGCC</div>
+        </div>
+      </div>
+      <canvas id="c-ing-r" height="200"></canvas>
+    </div>
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Flujo Total Mensual</div><div class="cs">Real 2025 + Proy. 2026 · positivo/negativo</div></div></div>
+      <canvas id="c-ft-r" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- OPERACIONAL -->
+<div id="tab-operacional" class="section">
+  <div class="frow">
+    <span class="flabel">Vista:</span>
+    <button class="fbtn active" data-op="2025r">Real 2025</button>
+    <button class="fbtn" data-op="2026p">Proyectado 2026</button>
+    <button class="fbtn" data-op="comp">Comparativo</button>
+  </div>
+  <div class="kpi-grid k4">
+    <div class="kpi-card" style="--kc:#3b82f6"><div class="kpi-label">Ingresos Arriendos</div><div class="kpi-val" id="ok1">—</div><div class="kpi-sub" id="ok1s">—</div></div>
+    <div class="kpi-card" style="--kc:#10b981"><div class="kpi-label">Ingresos GGCC</div><div class="kpi-val" id="ok2">—</div><div class="kpi-sub" id="ok2s">—</div></div>
+    <div class="kpi-card" style="--kc:#f59e0b"><div class="kpi-label">Costos Operacionales</div><div class="kpi-val" id="ok3">—</div><div class="kpi-sub" id="ok3s">—</div></div>
+    <div class="kpi-card" style="--kc:#10b981"><div class="kpi-label">Flujo Operacional</div><div class="kpi-val" id="ok4">—</div><div class="kpi-sub" id="ok4s">—</div></div>
+  </div>
+  <div class="cc" style="margin-bottom:18px">
+    <div class="ch">
+      <div><div class="ct" id="op-mt">Flujo Operacional</div><div class="cs" id="op-ms">—</div></div>
+      <div class="leg" id="op-ml"></div>
+    </div>
+    <canvas id="c-op-m" height="220"></canvas>
+  </div>
+  <div class="cg g2">
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Ingresos Arriendos</div><div class="cs">Real 2025 vs Proy. 2026</div></div></div>
+      <canvas id="c-arr" height="200"></canvas>
+    </div>
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Ingresos GGCC</div><div class="cs">Real 2025 vs Proy. 2026</div></div></div>
+      <canvas id="c-ggcc" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- INVERSIÓN -->
+<div id="tab-inversion" class="section">
+  <div class="kpi-grid k3">
+    <div class="kpi-card" style="--kc:#ef4444"><div class="kpi-label">Inversión Total 2025 Real</div><div class="kpi-val" id="ik1">—</div><div class="kpi-sub">Egresos ene–dic 2025</div></div>
+    <div class="kpi-card" style="--kc:#f59e0b"><div class="kpi-label">Inversión Proyectada 2026</div><div class="kpi-val" id="ik2">—</div><div class="kpi-sub">Egresos proyectados 2026</div></div>
+    <div class="kpi-card" style="--kc:#3b82f6"><div class="kpi-label">Inversión Acumulada 2021–2025</div><div class="kpi-val" id="ik3">—</div><div class="kpi-sub">Total histórico real</div></div>
+  </div>
+  <div class="cc" style="margin-bottom:18px">
+    <div class="ch">
+      <div><div class="ct">Flujo de Inversión Mensual</div><div class="cs">Real 2021–2025 + Proyectado 2026 · UF</div></div>
+      <div class="leg">
+        <div class="li"><div class="ldot" style="background:rgba(239,68,68,.8)"></div>Real (egresos)</div>
+        <div class="li"><div class="ldot" style="background:rgba(59,130,246,.6)"></div>Proyectado</div>
+      </div>
+    </div>
+    <canvas id="c-inv-m" height="220"></canvas>
+  </div>
+  <div class="cg g2">
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Inversión Acumulada Histórica</div><div class="cs">Real 2021–2025 · UF</div></div></div>
+      <canvas id="c-inv-a" height="200"></canvas>
+    </div>
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Inversión Proyectada 2026</div><div class="cs">Mensual · UF</div></div></div>
+      <canvas id="c-inv-26" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- FINANCIAMIENTO -->
+<div id="tab-financiamiento" class="section">
+  <div class="kpi-grid k4">
+    <div class="kpi-card" style="--kc:#ef4444"><div class="kpi-label">Financiamiento 2025 Real</div><div class="kpi-val" id="fk1">—</div><div class="kpi-sub">Ene–Dic 2025</div></div>
+    <div class="kpi-card" style="--kc:#f59e0b"><div class="kpi-label">Financiamiento 2026 Proy.</div><div class="kpi-val" id="fk2">—</div><div class="kpi-sub">Proyectado anual</div></div>
+    <div class="kpi-card" style="--kc:#8b5cf6"><div class="kpi-label">Intereses Construcción 2026</div><div class="kpi-val" id="fk3">—</div><div class="kpi-sub">Proyectado</div></div>
+    <div class="kpi-card" style="--kc:#3b82f6"><div class="kpi-label">Aportes Socios 2025 Real</div><div class="kpi-val" id="fk4">—</div><div class="kpi-sub">Total aportes reales</div></div>
+  </div>
+  <div class="cc" style="margin-bottom:18px">
+    <div class="ch">
+      <div><div class="ct">Flujo de Financiamiento Mensual</div><div class="cs">Real 2025 + Proyectado 2026 · UF</div></div>
+      <div class="leg">
+        <div class="li"><div class="ll" style="background:var(--green)"></div>Real 2025</div>
+        <div class="li"><div class="ld" style="border-color:var(--blue)"></div>Proy. 2026</div>
+      </div>
+    </div>
+    <canvas id="c-fin-m" height="220"></canvas>
+  </div>
+  <div class="cc">
+    <div class="ch">
+      <div><div class="ct">Cobertura Operacional vs Financiamiento</div><div class="cs">2025 real + 2026 proy. · UF</div></div>
+      <div class="leg">
+        <div class="li"><div class="ldot" style="background:rgba(16,185,129,.7)"></div>Flujo Op.</div>
+        <div class="li"><div class="ldot" style="background:rgba(239,68,68,.5)"></div>|Financiamiento|</div>
+        <div class="li"><div class="ll" style="background:var(--amber)"></div>Cobertura neta</div>
+      </div>
+    </div>
+    <canvas id="c-cov" height="220"></canvas>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div id="tab-timeline" class="section">
+  <div class="frow">
+    <span class="flabel">Período:</span>
+    <button class="fbtn active" data-tl="2526">2025–2026</button>
+    <button class="fbtn" data-tl="2426">2024–2026</button>
+    <button class="fbtn" data-tl="all">Historial completo</button>
+  </div>
+  <div class="cc" style="margin-bottom:18px">
+    <div class="ch">
+      <div><div class="ct">Flujo Operacional · Serie Completa</div><div class="cs" id="tl-sub">Real hasta Dic 2025 · Proyectado desde Ene 2026</div></div>
+      <div class="leg">
+        <div class="li"><div class="ll" style="background:var(--green)"></div>Real</div>
+        <div class="li"><div class="ld" style="border-color:var(--blue)"></div>Proyectado</div>
+      </div>
+    </div>
+    <canvas id="c-tl-op" height="230"></canvas>
+  </div>
+  <div class="cg g2">
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Ingresos Arriendos · Serie</div><div class="cs">UF mensuales</div></div></div>
+      <canvas id="c-tl-arr" height="200"></canvas>
+    </div>
+    <div class="cc">
+      <div class="ch"><div><div class="ct">Flujo Acumulado · Serie</div><div class="cs">UF</div></div></div>
+      <canvas id="c-tl-ac" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- DETALLE -->
+<div id="tab-detalle" class="section">
+  <div class="frow">
+    <span class="flabel">Período:</span>
+    <button class="fbtn active" data-det="2025r">Real 2025</button>
+    <button class="fbtn" data-det="2026p">Proyectado 2026</button>
+  </div>
+  <div class="tw">
+    <div class="thb"><div class="tt">Flujo Mensual Detallado</div><span class="badge br" id="det-badge">Real 2025</span></div>
+    <div style="overflow-x:auto">
+      <table><thead><tr id="det-head"></tr></thead><tbody id="det-body"></tbody></table>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ══════ DATA ══════
+// Block 0 = cols 1–59  → MONTHS_R (2021-01 to 2025-11)
+// Block 1 col 60       → 2025-12  (still REAL)
+// Block 1 cols 61-120  → MONTHS_P (2026-01 to 2030-12)
+
+const MR=['2021-01','2021-02','2021-03','2021-04','2021-05','2021-06','2021-07','2021-08','2021-09','2021-10','2021-11','2021-12','2022-01','2022-02','2022-03','2022-04','2022-05','2022-06','2022-07','2022-08','2022-09','2022-10','2022-11','2022-12','2023-01','2023-02','2023-03','2023-04','2023-05','2023-06','2023-07','2023-08','2023-09','2023-10','2023-11','2023-12','2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12'];
+const MP=['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12','2027-01','2027-02','2027-03','2027-04','2027-05','2027-06','2027-07','2027-08','2027-09','2027-10','2027-11','2027-12','2028-01','2028-02','2028-03','2028-04','2028-05','2028-06','2028-07','2028-08','2028-09','2028-10','2028-11','2028-12','2029-01','2029-02','2029-03','2029-04','2029-05','2029-06','2029-07','2029-08','2029-09','2029-10','2029-11','2029-12','2030-01','2030-02','2030-03','2030-04','2030-05','2030-06','2030-07','2030-08','2030-09','2030-10','2030-11','2030-12'];
+
+// REAL series (MR = 60 entries incl 2025-12)
+const opR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4838.49,5066.92,5066.92,2557.4,5504.02,2230.3,5962.31,4523.94,2957.17,3238.08,2633.52,0];
+const arrR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7100.22,7104.65,7104.65,7104.65,7114.3,6695.48,6719.83,6691.27,6695.81,6695.81,6695.81,6695.81];
+const ggccR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1230.08,1230.08,1230.08,1230.08,1230.08,1230.08,1230.08,1230.08,1138.87,1138.87,1138.87,1138.87];
+const costR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1909.02,-1909.02,-1909.02,-1500,-1500,-1500,-1500,-1500,-1500,-1861.42,-1861.42,-1861.42];
+const invR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-17637.96,-4779.78,-8060.52,-7674.71,-5817.26,-142.8,-142.8,-4016.99,-2658.06,-1296.17,-2445.67,-962.78,-962.78];
+const finR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-4501.74,-4501.74,-4501.74,-4501.74,-2668.51,-2661.91,-2655.28,-2648.64,-2641.97,-2635.27,-2628.55,-2621.81];
+const intR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2694.67,-2688.16,-2681.64,-2675.08,-2641.97,-2635.27,-2628.55,-2621.81,-2615.04,-2608.25,-2601.43,-2594.59];
+const apR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,28000,0,0,20000,0,0,0,0,5415.48,0,0,0];
+const ftR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10698.79,-4214.59,-7495.34,10380.96,2692.71,-433.61,-1208.96,-2624.7,-982.97,-1843.86,-6858.93,-464.52];
+const acR=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-259.54,10439.25,6224.66,-1270.68,9110.28,11803,11369.39,10160.43,7535.73,6552.76,4708.9,-2150.03,500];
+
+// PROJECTED series (MP = 60 entries 2026-01 to 2030-12)
+const opP=[5830.63,5835.2,6072.56,4364.07,5190.71,3920.78,5943.41,5674.92,4174.92,6232.75,4690.44,6290.44,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const arrP=[6695.81,6700.47,6700.47,6753.33,6805.61,7131.19,7358.37,7416.22,7416.22,7800.5,7859.36,7859.36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const ggccP=[1138.87,1138.87,1276.23,1291.34,1291.34,1291.34,1291.34,1377.15,1377.15,1458.39,1458.39,1458.39,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const costP=[-1460.13,-1460.13,-1460.13,-1460.13,-1460.13,-1460.13,-1460.13,-1460.13,-1460.13,-1460.13,-1460.13,-1460.13,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const invP=[-154.7,-792.59,-4915.21,-2073.63,-1159.1,-2204.81,-486.92,-286.92,-286.92,-286.92,-286.92,-286.92,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const finP=[-2615.04,-2608.25,-2601.43,-3151.59,-2587.72,-2580.83,-3130.92,-2566.98,-2560.01,-3110.02,-2546.01,-2538.97,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const intP=[-2587.72,-2580.83,-2573.92,-2566.98,-2560.01,-2553.02,-2546.01,-2538.97,-2531.88,-2524.73,-2517.54,-2510.29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const ftP=[1174.19,5540.88,-3344.39,-2211.3,2529.87,-2785.77,954.75,886.26,-613.74,1444.09,-98.22,1464.54,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const acP=[1674.19,7215.07,3870.68,1659.38,4189.25,1403.49,2358.24,3244.5,2630.76,4074.85,3976.62,5441.16,5441.16,5441.16,5441.16,5441.16,5441.16,5441.16,5441.16,5441.16,5441.16,5441.16,5441.16,5441.16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+// ══════ UTILS ══════
+Chart.defaults.color='#64748b';Chart.defaults.borderColor='#1f2d45';Chart.defaults.font.family="'DM Sans',sans-serif";
+const CI={};
+function mc(id,cfg){if(CI[id])CI[id].destroy();CI[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);return CI[id]}
+const C={g:'#10b981',b:'#3b82f6',a:'#f59e0b',r:'#ef4444',p:'#8b5cf6',gf:'rgba(16,185,129,.12)',bf:'rgba(59,130,246,.12)'};
+const TT={backgroundColor:'rgba(17,24,39,.95)',borderColor:'#1f2d45',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10};
+function fuf(v){return new Intl.NumberFormat('es-CL',{maximumFractionDigits:0}).format(v)+' UF'}
+function fk(v){const a=Math.abs(v);return a>=1000?(v/1000).toFixed(1)+'k':v.toFixed(0)}
+const MN=['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+function ml(d){const[y,m]=d.split('-');return MN[+m]}
+function mly(d){const[y,m]=d.split('-');return MN[+m]+' '+y.slice(2)}
+function sl(arr,months,f,t){const out={v:[],l:[]};months.forEach((d,i)=>{if(d>=f&&d<=t){out.v.push(arr[i]);out.l.push(d)}});return out}
+const ys={grid:{color:'#1f2d45'},ticks:{callback:fk}};
+const xs={grid:{color:'#1f2d45'}};
+
+function lineDS(label,data,color,dashed,fill){
+  return{label,data,borderColor:color,backgroundColor:fill?'rgba('+hexToRgb(color)+',.12)':'transparent',fill:!!fill,
+    tension:.4,borderWidth:dashed?2:2.5,borderDash:dashed?[5,4]:[],pointRadius:3,pointBackgroundColor:color}
+}
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`${r},${g},${b}`}
+
+// ══════ RESUMEN ══════
+function initResumen(){
+  const r=sl(opR,MR,'2025-01','2025-12'),p=sl(opP,MP,'2026-01','2026-12');
+  const lab=[...r.l.map(ml),...p.l.map(ml)];
+  mc('c-op-r',{type:'line',data:{labels:lab,datasets:[
+    {...lineDS('Real 2025',r.v,C.g,false),...{data:[...r.v,...p.v.map(()=>null)]}},
+    {...lineDS('Proy. 2026',p.v,C.b,true),...{data:[...r.v.map(()=>null),...p.v]}}
+  ]},options:{responsive:true,scales:{x:xs,y:ys},plugins:{tooltip:{...TT,mode:'index'},legend:{display:false}}}});
+
+  const ra=sl(acR,MR,'2025-01','2025-12'),pa=sl(acP,MP,'2026-01','2026-12');
+  mc('c-acum-r',{type:'line',data:{labels:[...ra.l.map(ml),...pa.l.map(ml)],datasets:[
+    {...lineDS('Real 2025',[...ra.v,...pa.v.map(()=>null)],C.g,false,true)},
+    {...lineDS('Proy. 2026',[...ra.v.map(()=>null),...pa.v],C.b,true,true)}
+  ]},options:{responsive:true,scales:{x:xs,y:ys},plugins:{tooltip:{...TT,mode:'index'},legend:{display:false}}}});
+
+  const a25=sl(arrR,MR,'2025-01','2025-12'),g25=sl(ggccR,MR,'2025-01','2025-12');
+  const a26=sl(arrP,MP,'2026-01','2026-12'),g26=sl(ggccP,MP,'2026-01','2026-12');
+  mc('c-ing-r',{type:'bar',data:{labels:[...a25.l.map(ml),...a26.l.map(ml)],datasets:[
+    {label:'Arriendos',data:[...a25.v,...a26.v],backgroundColor:'rgba(59,130,246,.75)',borderRadius:3},
+    {label:'GGCC',data:[...g25.v,...g26.v],backgroundColor:'rgba(16,185,129,.75)',borderRadius:3}
+  ]},options:{responsive:true,scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,...ys}},
+    plugins:{tooltip:{...TT,mode:'index'},legend:{display:true,position:'top',align:'end',labels:{color:'#64748b',font:{size:11},boxWidth:8,padding:10}}}}});
+
+  const ft25=sl(ftR,MR,'2025-01','2025-12'),ft26=sl(ftP,MP,'2026-01','2026-12');
+  const dFT=[...ft25.v,...ft26.v];const nR=ft25.v.length;
+  mc('c-ft-r',{type:'bar',data:{labels:[...ft25.l.map(ml),...ft26.l.map(ml)],datasets:[{
+    label:'Flujo Total',data:dFT,borderRadius:4,
+    backgroundColor:dFT.map((v,i)=>v>=0?(i<nR?'rgba(16,185,129,.75)':'rgba(59,130,246,.7)'):'rgba(239,68,68,.7)')
+  }]},options:{responsive:true,scales:{x:{grid:{display:false}},y:ys},
+    plugins:{tooltip:{...TT,callbacks:{label:ctx=>` Flujo Total: ${fuf(ctx.parsed.y)}`}},legend:{display:false}}}});
+}
+
+// ══════ OPERACIONAL ══════
+function opKPIs(mode){
+  const is25=mode==='2025r',yr=is25?'2025':'2026',lbl=is25?'Real 2025':'Proy. 2026';
+  const arr=is25?arrR:arrP,gg=is25?ggccR:ggccP,co=is25?costR:costP,op=is25?opR:opP,m=is25?MR:MP;
+  const sum=a=>a.map((v,i)=>m[i]&&m[i].startsWith(yr)?v:0).reduce((a,b)=>a+b,0);
+  const set=(id,v,sub)=>{document.getElementById(id).innerHTML=`${(Math.abs(v)/1000).toFixed(0)}k <span class="kpi-unit">UF</span>`;document.getElementById(id+'s').textContent=sub};
+  set('ok1',sum(arr),lbl);set('ok2',sum(gg),lbl);set('ok3',sum(co),lbl);set('ok4',sum(op),lbl);
+}
+function opMain(mode){
+  let ds=[],lab,sub,legHTML;
+  if(mode==='2025r'){
+    const r=sl(opR,MR,'2025-01','2025-12');lab=r.l.map(ml);
+    ds=[{...lineDS('Real 2025',r.v,C.g,false,true)}];
+    sub='Mensual Real 2025 · UF';legHTML=`<div class="li"><div class="ll" style="background:${C.g}"></div>Real 2025</div>`;
+  }else if(mode==='2026p'){
+    const p=sl(opP,MP,'2026-01','2026-12');lab=p.l.map(ml);
+    ds=[{...lineDS('Proy. 2026',p.v,C.b,true,true)}];
+    sub='Mensual Proyectado 2026 · UF';legHTML=`<div class="li"><div class="ld" style="border-color:${C.b}"></div>Proy. 2026</div>`;
+  }else{
+    const r=sl(opR,MR,'2025-01','2025-12'),p=sl(opP,MP,'2026-01','2026-12');
+    lab=[...r.l.map(ml),...p.l.map(ml)];
+    ds=[{...lineDS('Real 2025',[...r.v,...p.v.map(()=>null)],C.g,false)},
+        {...lineDS('Proy. 2026',[...r.v.map(()=>null),...p.v],C.b,true)}];
+    sub='Comparativo Real 2025 vs Proyectado 2026 · UF';
+    legHTML=`<div class="li"><div class="ll" style="background:${C.g}"></div>Real 2025</div><div class="li"><div class="ld" style="border-color:${C.b}"></div>Proy. 2026</div>`;
+  }
+  document.getElementById('op-ms').textContent=sub;document.getElementById('op-ml').innerHTML=legHTML;
+  mc('c-op-m',{type:'line',data:{labels:lab,datasets:ds},options:{responsive:true,scales:{x:xs,y:ys},plugins:{tooltip:{...TT,mode:'index'},legend:{display:false}}}});
+}
+function initOperacional(){
+  opKPIs('2025r');opMain('2025r');
+  const r25=sl(arrR,MR,'2025-01','2025-12'),p26=sl(arrP,MP,'2026-01','2026-12');
+  mc('c-arr',{type:'line',data:{labels:[...r25.l.map(ml),...p26.l.map(ml)],datasets:[
+    {...lineDS('Real 2025',[...r25.v,...p26.v.map(()=>null)],C.g,false)},
+    {...lineDS('Proy. 2026',[...r25.v.map(()=>null),...p26.v],C.b,true)}
+  ]},options:{responsive:true,scales:{x:xs,y:ys},plugins:{tooltip:{...TT,mode:'index'},legend:{display:true,position:'top',align:'end',labels:{color:'#64748b',font:{size:11},boxWidth:8}}}}});
+  const rg25=sl(ggccR,MR,'2025-01','2025-12'),pg26=sl(ggccP,MP,'2026-01','2026-12');
+  mc('c-ggcc',{type:'bar',data:{labels:[...rg25.l.map(ml),...pg26.l.map(ml)],datasets:[
+    {label:'Real 2025',data:[...rg25.v,...pg26.v.map(()=>0)],backgroundColor:'rgba(16,185,129,.7)',borderRadius:3},
+    {label:'Proy. 2026',data:[...rg25.v.map(()=>0),...pg26.v],backgroundColor:'rgba(59,130,246,.6)',borderRadius:3}
+  ]},options:{responsive:true,scales:{x:{grid:{display:false}},y:ys},plugins:{tooltip:{...TT,mode:'index'},legend:{display:true,position:'top',align:'end',labels:{color:'#64748b',font:{size:11},boxWidth:8}}}}});
+}
+
+// ══════ INVERSIÓN ══════
+function initInversion(){
+  const r25=sl(invR,MR,'2025-01','2025-12'),p26=sl(invP,MP,'2026-01','2026-12');
+  const rAll=sl(invR,MR,'2021-01','2025-12');
+  document.getElementById('ik1').innerHTML=`${(Math.abs(r25.v.reduce((a,b)=>a+b,0))/1000).toFixed(0)}k <span class="kpi-unit">UF</span>`;
+  document.getElementById('ik2').innerHTML=`${(Math.abs(p26.v.reduce((a,b)=>a+b,0))/1000).toFixed(0)}k <span class="kpi-unit">UF</span>`;
+  document.getElementById('ik3').innerHTML=`${(Math.abs(rAll.v.reduce((a,b)=>a+b,0))/1000).toFixed(0)}k <span class="kpi-unit">UF</span>`;
+  const labM=[...rAll.l.map(mly),...p26.l.map(mly)];
+  const dM=[...rAll.v,...p26.v];const nRM=rAll.v.length;
+  mc('c-inv-m',{type:'bar',data:{labels:labM,datasets:[{label:'Inversión',data:dM,borderRadius:2,
+    backgroundColor:dM.map((v,i)=>v<0?(i<nRM?'rgba(239,68,68,.75)':'rgba(59,130,246,.6)'):'rgba(16,185,129,.4)')}]},
+    options:{responsive:true,scales:{x:{grid:{display:false},ticks:{maxTicksLimit:24,font:{size:10}}},y:ys},
+      plugins:{tooltip:{...TT,callbacks:{label:ctx=>` Inversión: ${fuf(ctx.parsed.y)}`}},legend:{display:false}}}});
+  let acum=0;const acumD=rAll.v.map(v=>{acum+=v;return Math.round(acum)});
+  mc('c-inv-a',{type:'line',data:{labels:rAll.l.map(mly),datasets:[{label:'Acumulado',data:acumD,borderColor:C.r,backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,borderWidth:2,pointRadius:0}]},
+    options:{responsive:true,scales:{x:{grid:{display:false},ticks:{maxTicksLimit:14,font:{size:10}}},y:ys},
+      plugins:{tooltip:{...TT,callbacks:{label:ctx=>` Acumulado: ${fuf(ctx.parsed.y)}`}},legend:{display:false}}}});
+  mc('c-inv-26',{type:'bar',data:{labels:p26.l.map(ml),datasets:[{label:'Inversión Proy.',data:p26.v,borderRadius:4,backgroundColor:p26.v.map(v=>v<0?'rgba(59,130,246,.7)':'rgba(16,185,129,.5)')}]},
+    options:{responsive:true,scales:{x:{grid:{display:false}},y:ys},
+      plugins:{tooltip:{...TT,callbacks:{label:ctx=>` Inversión: ${fuf(ctx.parsed.y)}`}},legend:{display:false}}}});
+}
+
+// ══════ FINANCIAMIENTO ══════
+function initFinanciamiento(){
+  const rf=sl(finR,MR,'2025-01','2025-12'),pf=sl(finP,MP,'2026-01','2026-12');
+  const ri=sl(intP,MP,'2026-01','2026-12'),ra=sl(apR,MR,'2025-01','2025-12');
+  const sum=a=>a.reduce((t,v)=>t+v,0);
+  document.getElementById('fk1').innerHTML=`${(Math.abs(sum(rf.v))/1000).toFixed(0)}k <span class="kpi-unit">UF</span>`;
+  document.getElementById('fk2').innerHTML=`${(Math.abs(sum(pf.v))/1000).toFixed(0)}k <span class="kpi-unit">UF</span>`;
+  document.getElementById('fk3').innerHTML=`${(Math.abs(sum(ri.v))/1000).toFixed(0)}k <span class="kpi-unit">UF</span>`;
+  document.getElementById('fk4').innerHTML=`${(sum(ra.v)/1000).toFixed(0)}k <span class="kpi-unit">UF</span>`;
+  mc('c-fin-m',{type:'line',data:{labels:[...rf.l.map(ml),...pf.l.map(ml)],datasets:[
+    {...lineDS('Real 2025',[...rf.v,...pf.v.map(()=>null)],C.g,false)},
+    {...lineDS('Proy. 2026',[...rf.v.map(()=>null),...pf.v],C.b,true)}
+  ]},options:{responsive:true,scales:{x:xs,y:ys},plugins:{tooltip:{...TT,mode:'index'},legend:{display:true,position:'top',align:'end',labels:{color:'#64748b',font:{size:11},boxWidth:8}}}}});
+  const ro=sl(opR,MR,'2025-01','2025-12'),po=sl(opP,MP,'2026-01','2026-12');
+  const opD=[...ro.v,...po.v],fabD=[...rf.v.map(v=>Math.abs(v)),...pf.v.map(v=>Math.abs(v))];
+  const allFin=[...rf.v,...pf.v];const netD=opD.map((v,i)=>v+allFin[i]);
+  const isP=[...ro.v.map(()=>false),...po.v.map(()=>true)];
+  mc('c-cov',{type:'bar',data:{labels:[...ro.l.map(ml),...po.l.map(ml)],datasets:[
+    {label:'Flujo Op.',data:opD,backgroundColor:opD.map((_,i)=>isP[i]?'rgba(59,130,246,.6)':'rgba(16,185,129,.7)'),borderRadius:3,order:2},
+    {label:'|Financiamiento|',data:fabD,backgroundColor:'rgba(239,68,68,.45)',borderRadius:3,order:2},
+    {label:'Cobertura neta',data:netD,type:'line',borderColor:C.a,pointBackgroundColor:C.a,pointRadius:4,fill:false,tension:.4,borderWidth:2,order:1}
+  ]},options:{responsive:true,scales:{x:{grid:{display:false}},y:ys},
+    plugins:{tooltip:{...TT,mode:'index',callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fuf(ctx.parsed.y)}`}},
+      legend:{display:true,position:'top',align:'end',labels:{color:'#64748b',font:{size:11},boxWidth:8}}}}});
+}
+
+// ══════ TIMELINE ══════
+function renderTL(mode){
+  let rf,pf,labFn;
+  if(mode==='2526'){rf=sl(opR,MR,'2025-01','2025-12');pf=sl(opP,MP,'2026-01','2026-12');labFn=ml;}
+  else if(mode==='2426'){rf=sl(opR,MR,'2024-01','2025-12');pf=sl(opP,MP,'2026-01','2026-12');labFn=mly;}
+  else{rf=sl(opR,MR,'2021-01','2025-12');pf=sl(opP,MP,'2026-01','2026-12');labFn=mly;}
+  const pr=mode==='all'?0:3;
+  mc('c-tl-op',{type:'line',data:{labels:[...rf.l.map(labFn),...pf.l.map(labFn)],datasets:[
+    {...lineDS('Real',[...rf.v,...pf.v.map(()=>null)],C.g,false),...{pointRadius:pr}},
+    {...lineDS('Proyectado',[...rf.v.map(()=>null),...pf.v],C.b,true),...{pointRadius:pr}}
+  ]},options:{responsive:true,scales:{x:{grid:{color:'#1f2d45'},ticks:{maxTicksLimit:mode==='all'?24:14}},y:ys},
+    plugins:{tooltip:{...TT,mode:'index'},legend:{display:false}}}});
+  const rra=mode==='2526'?sl(arrR,MR,'2025-01','2025-12'):(mode==='2426'?sl(arrR,MR,'2024-01','2025-12'):sl(arrR,MR,'2021-01','2025-12'));
+  const pra=sl(arrP,MP,'2026-01','2026-12');
+  mc('c-tl-arr',{type:'line',data:{labels:[...rra.l.map(labFn),...pra.l.map(labFn)],datasets:[
+    {...lineDS('Real',[...rra.v,...pra.v.map(()=>null)],C.g,false),...{pointRadius:0}},
+    {...lineDS('Proyectado',[...rra.v.map(()=>null),...pra.v],C.b,true),...{pointRadius:0}}
+  ]},options:{responsive:true,scales:{x:{grid:{color:'#1f2d45'},ticks:{maxTicksLimit:20}},y:ys},
+    plugins:{tooltip:{...TT,mode:'index'},legend:{display:true,position:'top',align:'end',labels:{color:'#64748b',font:{size:11},boxWidth:8}}}}});
+  const rac=mode==='2526'?sl(acR,MR,'2025-01','2025-12'):(mode==='2426'?sl(acR,MR,'2024-01','2025-12'):sl(acR,MR,'2021-01','2025-12'));
+  const pac=sl(acP,MP,'2026-01','2026-12');
+  mc('c-tl-ac',{type:'line',data:{labels:[...rac.l.map(labFn),...pac.l.map(labFn)],datasets:[
+    {...lineDS('Real',[...rac.v,...pac.v.map(()=>null)],C.g,false,true),...{pointRadius:0}},
+    {...lineDS('Proyectado',[...rac.v.map(()=>null),...pac.v],C.b,true,true),...{pointRadius:0}}
+  ]},options:{responsive:true,scales:{x:{grid:{color:'#1f2d45'},ticks:{maxTicksLimit:20}},y:ys},
+    plugins:{tooltip:{...TT,mode:'index'},legend:{display:true,position:'top',align:'end',labels:{color:'#64748b',font:{size:11},boxWidth:8}}}}});
+}
+
+// ══════ DETALLE ══════
+function buildDetalle(mode){
+  const is25=mode==='2025r';
+  const months=is25?MR.filter(d=>d>='2025-01'):MP.filter(d=>d<='2026-12');
+  const allM=is25?MR:MP;
+  document.getElementById('det-badge').textContent=is25?'Real 2025':'Proyectado 2026';
+  document.getElementById('det-badge').className='badge '+(is25?'br':'bp');
+  document.getElementById('det-head').innerHTML='<th>Concepto</th>'+months.map(d=>`<th>${ml(d)}</th>`).join('')+'<th>Total</th>';
+  const fmt=v=>new Intl.NumberFormat('es-CL',{maximumFractionDigits:0}).format(v);
+  const rows=[
+    {l:'Ingresos Arriendos',a:is25?arrR:arrP,s:'vp'},
+    {l:'Ingresos GGCC',a:is25?ggccR:ggccP,s:'vp'},
+    {l:'Ingresos Operacionales',a:(is25?arrR:arrP).map((v,i)=>v+(is25?ggccR:ggccP)[i]),s:'vh',sep:true},
+    {l:'Costos Operacionales',a:is25?costR:costP,s:'vn'},
+    {l:'Flujo Operacional',a:is25?opR:opP,s:'vh',sep:true},
+    {l:'Flujo Inversión',a:is25?invR:invP,s:'vn'},
+    {l:'Flujo Financiamiento',a:is25?finR:finP,s:'vn'},
+    {l:'Total Aportes',a:is25?apR:apR.map(()=>0),s:'vp'},
+    {l:'Flujo Total',a:is25?ftR:ftP,s:'vh',sep:true},
+    {l:'Flujo Acumulado',a:is25?acR:acP,s:'vh',sep:true}
+  ];
+  document.getElementById('det-body').innerHTML=rows.map(row=>{
+    const vals=months.map(d=>{const i=allM.indexOf(d);return i>=0?row.a[i]:0});
+    const total=vals.reduce((a,b)=>a+b,0);
+    const cells=vals.map(v=>`<td class="${v>0?'vp':v<0?'vn':''}">${fmt(v)}</td>`).join('');
+    const tc=total>0?'vp':total<0?'vn':'';
+    return`<tr class="${row.sep?'rs':''}"><td>${row.l}</td>${cells}<td class="${tc}" style="font-weight:600">${fmt(total)}</td></tr>`;
+  }).join('');
+}
+
+// ══════ NAV ══════
+const TI={};
+function setTab(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelector(`.tab-btn[data-tab="${name}"]`).classList.add('active');
+  if(!TI[name]){TI[name]=true;
+    if(name==='operacional')initOperacional();
+    if(name==='inversion')initInversion();
+    if(name==='financiamiento')initFinanciamiento();
+    if(name==='timeline')renderTL('2526');
+    if(name==='detalle')buildDetalle('2025r');
+  }
+}
+document.querySelectorAll('.tab-btn[data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+document.querySelectorAll('.fbtn[data-op]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.fbtn[data-op]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  opKPIs(b.dataset.op);opMain(b.dataset.op);
+}));
+document.querySelectorAll('.fbtn[data-tl]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.fbtn[data-tl]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  renderTL(b.dataset.tl);
+}));
+document.querySelectorAll('.fbtn[data-det]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.fbtn[data-det]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  buildDetalle(b.dataset.det);
+}));
+TI['resumen']=true;initResumen();
+</script>
+</body>
+</html>
