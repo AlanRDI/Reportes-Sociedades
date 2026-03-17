@@ -158,6 +158,24 @@
     user-select: none;
   }
   .ley-item:hover { opacity: 0.7; transform: scale(1.06); }
+
+  /* BOTÓN VER TODO */
+  #btn-mostrar-todas {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 11px;
+    border-radius: 99px;
+    letter-spacing: .04em;
+    background: #f0f0f0;
+    color: #444;
+    border: 1px solid rgba(0,0,0,0.14);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+    white-space: nowrap;
+    margin-left: 8px;
+  }
+  #btn-mostrar-todas:hover { background: #e2e2e2; transform: scale(1.03); }
+  #btn-mostrar-todas.expandido { background: #e8f0e8; color: #2E5902; border-color: rgba(46,89,2,0.25); }
 </style>
 </head>
 <body>
@@ -184,6 +202,7 @@
   <div class="ley-item" onclick="irCategoria('col-colegios', 'sub-cat-colegios')" title="Ir a Colegios"><div class="ley-dot" style="background:#7B3F00"></div> Colegios</div>
   <div class="ley-item" onclick="irCategoria('col-nn', 'sub-cat-nn')" title="Ir a NN"><div class="ley-dot" style="background:#555"></div> NN</div>
   <div class="ley-item"><div class="ley-dot" style="background:#3D2700;border:1px solid #A06020;opacity:0.7"></div> Sub-sociedad</div>
+  <button id="btn-mostrar-todas" onclick="toggleTodas()">&#9660; Ver todo</button>
 </div>
 
 <div class="scroll-wrap" id="scroll-wrap">
@@ -395,6 +414,103 @@ function draw() {
 
 
 
+
+// IDs de todos los wraps de categoría y sub-nodos
+var CAT_WRAPS = ['sub-cat-tierra','sub-cat-comercial','sub-cat-industrial','sub-cat-residencial','sub-cat-colegios','sub-cat-nn'];
+var SUB_WRAPS = ['sub-portada','sub-confuturo','sub-ameris'];
+var todasExpandidas = false;
+
+function colapsar(wrapId, pillSelector) {
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  if (!wrap.classList.contains('collapsed')) {
+    wrap.style.maxHeight = wrap.scrollHeight + 'px';
+    wrap.getBoundingClientRect();
+    wrap.classList.add('collapsed');
+    var btn = document.querySelector(pillSelector + ' .cat-toggle');
+    if (btn) btn.style.transform = 'rotate(0deg)';
+  }
+}
+
+function expandir(wrapId, pillSelector) {
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  if (wrap.classList.contains('collapsed')) {
+    wrap.classList.remove('collapsed');
+    var btn = document.querySelector(pillSelector + ' .cat-toggle');
+    if (btn) btn.style.transform = 'rotate(45deg)';
+  }
+}
+
+function expandirSub(subId, parentSelector) {
+  var sub = document.getElementById(subId);
+  if (!sub) return;
+  if (sub.classList.contains('collapsed')) {
+    sub.classList.remove('collapsed');
+    var btn = document.querySelector(parentSelector + ' .toggle-btn');
+    if (btn) btn.style.transform = 'rotate(45deg)';
+  }
+}
+
+function colapsarSub(subId, parentSelector) {
+  var sub = document.getElementById(subId);
+  if (!sub) return;
+  if (!sub.classList.contains('collapsed')) {
+    sub.style.maxHeight = sub.scrollHeight + 'px';
+    sub.getBoundingClientRect();
+    sub.classList.add('collapsed');
+    var btn = document.querySelector(parentSelector + ' .toggle-btn');
+    if (btn) btn.style.transform = 'rotate(0deg)';
+  }
+}
+
+function toggleTodas() {
+  var btnEl = document.getElementById('btn-mostrar-todas');
+  if (!todasExpandidas) {
+    // Expandir todo
+    expandir('sub-cat-tierra',      '#col-tierra');
+    expandir('sub-cat-comercial',   '#col-comercial');
+    expandir('sub-cat-industrial',  '#col-industrial');
+    expandir('sub-cat-residencial', '#col-residencial');
+    expandir('sub-cat-colegios',    '#col-colegios');
+    expandir('sub-cat-nn',          '#col-nn');
+    expandirSub('sub-portada',   '#nodo-portada-parent');
+    expandirSub('sub-confuturo', '#nodo-confuturo-parent');
+    expandirSub('sub-ameris',    '#nodo-ameris-parent');
+    todasExpandidas = true;
+    btnEl.innerHTML = '&#9650; Colapsar todo';
+    btnEl.classList.add('expandido');
+  } else {
+    // Colapsar todo
+    colapsar('sub-cat-tierra',      '#col-tierra');
+    colapsar('sub-cat-comercial',   '#col-comercial');
+    colapsar('sub-cat-industrial',  '#col-industrial');
+    colapsar('sub-cat-residencial', '#col-residencial');
+    colapsar('sub-cat-colegios',    '#col-colegios');
+    colapsar('sub-cat-nn',          '#col-nn');
+    colapsarSub('sub-portada',   '#nodo-portada-parent');
+    colapsarSub('sub-confuturo', '#nodo-confuturo-parent');
+    colapsarSub('sub-ameris',    '#nodo-ameris-parent');
+    todasExpandidas = false;
+    btnEl.innerHTML = '&#9660; Ver todo';
+    btnEl.classList.remove('expandido');
+  }
+  setTimeout(draw, 380);
+}
+
+// Al cargar: colapsar todas las categorías por defecto
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    colapsar('sub-cat-tierra',      '#col-tierra');
+    colapsar('sub-cat-comercial',   '#col-comercial');
+    colapsar('sub-cat-industrial',  '#col-industrial');
+    colapsar('sub-cat-residencial', '#col-residencial');
+    colapsar('sub-cat-colegios',    '#col-colegios');
+    colapsar('sub-cat-nn',          '#col-nn');
+    setTimeout(draw, 380);
+  }, 120);
+});
+
 function irCategoria(colId, wrapId) {
   // Expandir si está colapsado
   var wrap = document.getElementById(wrapId);
@@ -498,7 +614,7 @@ function toggleSub(subId, parentNode) {
   setTimeout(draw, 320);
 }
 
-window.addEventListener('load', function(){ setTimeout(draw, 100); });
+
 window.addEventListener('resize', draw);
 </script>
 </body>
